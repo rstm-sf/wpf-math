@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -159,16 +158,13 @@ namespace WpfMath
             PredefinedColorParser.Instance)
         {}
 
-        public TexFormula Parse(string value, string textStyle = null)
+        public TexFormula Parse(string value, string textStyle = null) =>
+            Parse(new SourceSpan("User input", value, 0, value.Length), textStyle);
+
+        public TexFormula Parse(SourceSpan value, string textStyle = null)
         {
-            Debug.WriteLine(value);
             var position = 0;
-            return Parse(
-                new SourceSpan(value, 0, value.Length),
-                ref position,
-                false,
-                textStyle,
-                DefaultCommandEnvironment.Instance);
+            return Parse(value, ref position, false, textStyle, DefaultCommandEnvironment.Instance);
         }
 
         internal TexFormula Parse(SourceSpan value, string textStyle, ICommandEnvironment environment)
@@ -224,7 +220,7 @@ namespace WpfMath
             string textStyle,
             ICommandEnvironment environment)
         {
-            var formula = new TexFormula() { TextStyle = textStyle };
+            var formula = new TexFormula { Source = value, TextStyle = textStyle };
             var closedDelimiter = false;
             var skipWhiteSpace = ShouldSkipWhiteSpace(textStyle);
             var initialPosition = position;
@@ -300,7 +296,7 @@ namespace WpfMath
 
         private static TexFormula ConvertRawText(SourceSpan value, string textStyle)
         {
-            var formula = new TexFormula { TextStyle = textStyle };
+            var formula = new TexFormula { Source = value, TextStyle = textStyle };
 
             var position = 0;
             var initialPosition = position;
@@ -353,7 +349,7 @@ namespace WpfMath
             char closeChar)
         {
             SkipWhiteSpace(value, ref position);
-            if (value[position] != openChar)
+            if (position == value.Length || value[position] != openChar)
                 return null;
 
             return ReadElementGroup(value, ref position, openChar, closeChar);
@@ -625,7 +621,7 @@ namespace WpfMath
             var initialSrcPosition = position;
             var commandSpan = ReadEscapeSequence(value, ref position).Segment(1);
             var command = commandSpan.ToString();
-            var formulaSource = new SourceSpan(value.Source, initialSrcPosition, commandSpan.End);
+            var formulaSource = new SourceSpan(value.SourceName, value.Source, initialSrcPosition, commandSpan.End);
 
             SymbolAtom symbolAtom = null;
             if (SymbolAtom.TryGetAtom(commandSpan, out symbolAtom))
@@ -703,6 +699,7 @@ namespace WpfMath
                             environment);
 
                     var source = new SourceSpan(
+                        formulaSource.SourceName,
                         formulaSource.Source,
                         formulaSource.Start,
                         commandAtom.Source?.End ?? position);
@@ -742,7 +739,7 @@ namespace WpfMath
                 return atom;
 
             // Check for prime marks.
-            var primesRowAtom = new RowAtom(new SourceSpan(value.Source, position, 0));
+            var primesRowAtom = new RowAtom(new SourceSpan(value.SourceName, value.Source, position, 0));
             int i = position;
             while (i < value.Length)
             {
@@ -757,6 +754,7 @@ namespace WpfMath
             }
 
             var primesRowSource = new SourceSpan(
+                value.SourceName,
                 value.Source,
                 primesRowAtom.Source.Start,
                 position - primesRowAtom.Source.Start);
@@ -824,7 +822,11 @@ namespace WpfMath
             }
             else
             {
-                var source = new SourceSpan(value.Source, initialPosition, position - initialPosition);
+                var source = new SourceSpan(
+                    value.SourceName,
+                    value.Source,
+                    initialPosition,
+                    position - initialPosition);
                 return new ScriptsAtom(source, atom, subscriptAtom, superscriptAtom);
             }
         }
