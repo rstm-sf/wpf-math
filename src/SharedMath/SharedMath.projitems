@@ -82,6 +82,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\StandardCommands.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Rendering\GenericPlatformBrush.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Rendering\IPlatformBrush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Rendering\Transformations\Transformation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Rendering\Transformations\TransformationKind.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SourceSpan.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SymbolMappingNotFoundException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SymbolNotFoundException.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TexFontMetrics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TexFontUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TexFormulaHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TexPredefinedFormulaParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TexSymbolParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ColorHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Result.cs" />
